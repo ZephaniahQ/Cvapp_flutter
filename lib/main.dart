@@ -57,8 +57,25 @@ class CameraHomePageState extends State<CameraHomePage> {
     super.dispose();
   }
 
-  void startCameraStream() {
-    if (_controller != null && _controller!.value.isInitialized) {
+  void startCameraStream() async {
+    if (_controller == null) {
+      try {
+        cameras = await availableCameras();
+        _controller = CameraController(cameras[0], ResolutionPreset.high);
+        await _controller!.initialize();
+        _controller!.startImageStream((image) {
+          // Handle the image stream here if needed
+        }).then((_) {
+          setState(() {
+            _isCameraOn = true;
+          });
+        }).catchError((error) {
+          logger.e('Error starting image stream: $error');
+        });
+      } catch (e) {
+        logger.e('Error initializing camera: $e');
+      }
+    } else if (!_controller!.value.isStreamingImages) {
       _controller!.startImageStream((image) {
         // Handle the image stream here if needed
       }).then((_) {
@@ -68,22 +85,18 @@ class CameraHomePageState extends State<CameraHomePage> {
       }).catchError((error) {
         logger.e('Error starting image stream: $error');
       });
-    } else {
-      logger.e('Camera controller is not initialized.');
     }
   }
 
   void stopCameraStream() {
-    if (_isCameraOn) {
-      if (_controller != null && _controller!.value.isStreamingImages) {
-        _controller!.stopImageStream().then((_) {
-          setState(() {
-            _isCameraOn = false;
-          });
-        }).catchError((error) {
-          logger.e('Error stopping image stream: $error');
+    if (_controller != null && _controller!.value.isStreamingImages) {
+      _controller!.stopImageStream().then((_) {
+        setState(() {
+          _isCameraOn = false;
         });
-      }
+      }).catchError((error) {
+        logger.e('Error stopping image stream: $error');
+      });
     }
   }
 

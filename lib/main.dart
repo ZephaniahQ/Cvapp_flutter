@@ -64,7 +64,6 @@ class CameraHomePageState extends State<CameraHomePage> {
           setState(() {
             _isCameraOn = false;
           });
-          _controller!.dispose();
         }).catchError((error) {
           logger.e('Error stopping image stream: $error');
         });

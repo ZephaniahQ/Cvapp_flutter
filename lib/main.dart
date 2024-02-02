@@ -57,7 +57,23 @@ class CameraHomePageState extends State<CameraHomePage> {
     super.dispose();
   }
 
-  void toggleCameraStream() {
+  void startCameraStream() {
+    if (_controller != null && _controller!.value.isInitialized) {
+      _controller!.startImageStream((image) {
+        // Handle the image stream here if needed
+      }).then((_) {
+        setState(() {
+          _isCameraOn = true;
+        });
+      }).catchError((error) {
+        logger.e('Error starting image stream: $error');
+      });
+    } else {
+      logger.e('Camera controller is not initialized.');
+    }
+  }
+
+  void stopCameraStream() {
     if (_isCameraOn) {
       if (_controller != null && _controller!.value.isStreamingImages) {
         _controller!.stopImageStream().then((_) {
@@ -67,20 +83,6 @@ class CameraHomePageState extends State<CameraHomePage> {
         }).catchError((error) {
           logger.e('Error stopping image stream: $error');
         });
-      }
-    } else {
-      if (_controller != null && _controller!.value.isInitialized) {
-        _controller!.startImageStream((image) {
-          // Handle the image stream here if needed
-        }).then((_) {
-          setState(() {
-            _isCameraOn = true;
-          });
-        }).catchError((error) {
-          logger.e('Error starting image stream: $error');
-        });
-      } else {
-        logger.e('Camera controller is not initialized.');
       }
     }
   }
@@ -109,8 +111,13 @@ class CameraHomePageState extends State<CameraHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               FloatingActionButton(
-                onPressed: toggleCameraStream,
-                child: Icon(_isCameraOn ? Icons.camera_alt : Icons.camera),
+                onPressed: startCameraStream,
+                child: const Icon(Icons.camera),
+              ),
+              const SizedBox(width: 10),
+              FloatingActionButton(
+                onPressed: stopCameraStream,
+                child: const Icon(Icons.stop),
               ),
             ],
           ),

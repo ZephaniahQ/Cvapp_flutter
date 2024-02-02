@@ -8,7 +8,7 @@ void main() {
 }
 
 class CameraApp extends StatelessWidget {
-  const CameraApp({Key? key}) : super(key: key);
+  const CameraApp({Key? key}) : super(key: key); // Added Key parameter
 
   @override
   Widget build(BuildContext context) {
@@ -17,20 +17,20 @@ class CameraApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const CameraHomePage(),
+      home: const CameraHomePage(), // Used const constructor
     );
   }
 }
 
 class CameraHomePage extends StatefulWidget {
-  const CameraHomePage({Key? key}) : super(key: key);
+  const CameraHomePage({Key? key}) : super(key: key); // Added Key parameter
 
   @override
-  _CameraHomePageState createState() => _CameraHomePageState();
+  CameraHomePageState createState() => CameraHomePageState();
 }
 
-class _CameraHomePageState extends State<CameraHomePage> {
-  late CameraController _controller;
+class CameraHomePageState extends State<CameraHomePage> {
+  CameraController? _controller;
   bool _isCameraOn = false;
 
   @override
@@ -43,41 +43,45 @@ class _CameraHomePageState extends State<CameraHomePage> {
     try {
       cameras = await availableCameras();
       _controller = CameraController(cameras[0], ResolutionPreset.high);
-      await _controller.initialize();
-      _controller.startImageStream((image) {
+      await _controller!.initialize();
+      _controller!.startImageStream((image) {
         // Handle the image stream here if needed
+      }).then((_) {
+        setState(() {
+          _isCameraOn = true;
+        });
+      }).catchError((error) {
+        print('Error starting image stream: $error');
+        // Show error to user or log it
       });
     } catch (e) {
       print('Error initializing camera: $e');
+      // Show error to user or log it
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   void toggleCameraStream() {
-    if (_isCameraOn) {
-      if (_controller.value.isStreamingImages) {
-        _controller.stopImageStream();
-        setState(() {
-          _isCameraOn = false;
-        });
-      }
-    } else {
-      if (_controller.value.isInitialized) {
-        _controller.startImageStream((image) {
+    if (!_isCameraOn) {
+      if (_controller != null && _controller!.value.isInitialized) {
+        _controller!.startImageStream((image) {
           // Handle the image stream here if needed
+        }).then((_) {
+          setState(() {
+            _isCameraOn = true;
+          });
         }).catchError((error) {
           print('Error starting image stream: $error');
-        });
-        setState(() {
-          _isCameraOn = true;
+          // Show error to user or log it
         });
       } else {
         print('Camera controller is not initialized.');
+        // Show error to user or log it
       }
     }
   }
@@ -92,10 +96,12 @@ class _CameraHomePageState extends State<CameraHomePage> {
         children: <Widget>[
           Expanded(
             child: Container(
-              child: _isCameraOn && _controller.value.isInitialized
+              child: _isCameraOn &&
+                      _controller != null &&
+                      _controller!.value.isInitialized
                   ? AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: CameraPreview(_controller),
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: CameraPreview(_controller!),
                     )
                   : Container(), // Empty container when the camera is off
             ),

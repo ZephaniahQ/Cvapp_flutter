@@ -67,7 +67,17 @@ class CameraHomePageState extends State<CameraHomePage> {
   }
 
   void toggleCameraStream() {
-    if (!_isCameraOn) {
+    if (_isCameraOn) {
+      if (_controller != null && _controller!.value.isStreamingImages) {
+        _controller!.stopImageStream().then((_) {
+          setState(() {
+            _isCameraOn = false;
+          });
+        }).catchError((error) {
+          print('Error stopping image stream: $error');
+        });
+      }
+    } else {
       if (_controller != null && _controller!.value.isInitialized) {
         _controller!.startImageStream((image) {
           // Handle the image stream here if needed
@@ -77,11 +87,9 @@ class CameraHomePageState extends State<CameraHomePage> {
           });
         }).catchError((error) {
           print('Error starting image stream: $error');
-          // Show error to user or log it
         });
       } else {
         print('Camera controller is not initialized.');
-        // Show error to user or log it
       }
     }
   }

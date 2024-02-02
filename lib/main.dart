@@ -38,23 +38,6 @@ class CameraHomePageState extends State<CameraHomePage> {
   @override
   void initState() {
     super.initState();
-    initCamera();
-  }
-
-  void initCamera() async {
-    try {
-      cameras = await availableCameras();
-      _controller = CameraController(cameras[0], ResolutionPreset.high);
-      await _controller!.initialize();
-    } catch (e) {
-      logger.e('Error initializing camera: $e');
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
   }
 
   void startCameraStream() async {
@@ -94,6 +77,8 @@ class CameraHomePageState extends State<CameraHomePage> {
         setState(() {
           _isCameraOn = false;
         });
+        _controller!.dispose();
+        _controller = null;
       }).catchError((error) {
         logger.e('Error stopping image stream: $error');
       });

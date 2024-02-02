@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:logger/logger.dart';
 
 List<CameraDescription> cameras = [];
+final logger = Logger();
 
 void main() {
   runApp(const CameraApp());
@@ -51,12 +53,10 @@ class CameraHomePageState extends State<CameraHomePage> {
           _isCameraOn = true;
         });
       }).catchError((error) {
-        print('Error starting image stream: $error');
-        // Show error to user or log it
+        logger.e('Error starting image stream: $error');
       });
     } catch (e) {
-      print('Error initializing camera: $e');
-      // Show error to user or log it
+      logger.e('Error initializing camera: $e');
     }
   }
 
@@ -74,7 +74,7 @@ class CameraHomePageState extends State<CameraHomePage> {
             _isCameraOn = false;
           });
         }).catchError((error) {
-          print('Error stopping image stream: $error');
+          logger.e('Error stopping image stream: $error');
         });
       }
     } else {
@@ -86,10 +86,10 @@ class CameraHomePageState extends State<CameraHomePage> {
             _isCameraOn = true;
           });
         }).catchError((error) {
-          print('Error starting image stream: $error');
+          logger.e('Error starting image stream: $error');
         });
       } else {
-        print('Camera controller is not initialized.');
+        logger.e('Camera controller is not initialized.');
       }
     }
   }

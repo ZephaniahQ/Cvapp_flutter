@@ -15,7 +15,7 @@ class CameraApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Camera App',
+      title: 'CVbot companion App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -89,7 +89,7 @@ class CameraHomePageState extends State<CameraHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Camera App'),
+        title: const Text('CVbot Companion App'),
       ),
       body: Column(
         children: <Widget>[
